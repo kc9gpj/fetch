@@ -46,41 +46,43 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle className="text-center">🐾 Fetch Dog Adoption</CardTitle>
-                    <CardDescription className="text-center">
-                        Find your perfect furry friend
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <Input
-                            type="text"
-                            name="name"
-                            label="Name"
-                            placeholder="Your Name"
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                        <Input
-                            type="email"
-                            name="email"
-                            label="Email"
-                            placeholder="Your Email"
-                            value={formData.email}
-                            onChange={handleChange}
-                        />
-                        {error && (
-                            <div className="text-red-500 text-sm text-center">{error}</div>
-                        )}
-                        <Button type="submit" variant="primary" className="w-full">
-                            Start Finding Dogs
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-0">
+            <div className="w-full max-w-md mx-auto px-4">
+                <Card>
+                    <CardHeader className="space-y-2">
+                        <CardTitle className="text-2xl font-bold text-center">🐾 Fetch Dog Adoption</CardTitle>
+                        <CardDescription className="text-center">
+                            Find your perfect furry friend
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <Input
+                                type="text"
+                                name="name"
+                                label="Name"
+                                placeholder="Your Name"
+                                value={formData.name}
+                                onChange={handleChange}
+                            />
+                            <Input
+                                type="email"
+                                name="email"
+                                label="Email"
+                                placeholder="Your Email"
+                                value={formData.email}
+                                onChange={handleChange}
+                            />
+                            {error && (
+                                <div className="text-red-500 text-sm text-center">{error}</div>
+                            )}
+                            <Button type="submit" variant="primary" className="w-full">
+                                Start Finding Dogs
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 };
