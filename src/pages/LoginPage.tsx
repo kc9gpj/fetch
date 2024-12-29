@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
             <div className="w-full max-w-md mx-auto px-4">
                 <Card>
                     <CardHeader className="space-y-2">
-                        <CardTitle className="text-2xl font-bold text-center">🐾 Fetch Dog Adoption</CardTitle>
+                        <CardTitle className="text-2xl font-bold text-center">Fetch Doge Adoption</CardTitle>
                         <CardDescription className="text-center">
                             Find your perfect furry friend
                         </CardDescription>
@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
                                 <div className="text-red-500 text-sm text-center">{error}</div>
                             )}
                             <Button type="submit" variant="primary" className="w-full">
-                                Start Finding Dogs
+                                Start Finding Doges
                             </Button>
                         </form>
                     </CardContent>

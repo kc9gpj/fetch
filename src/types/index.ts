@@ -3,7 +3,7 @@ export interface User {
     email: string;
 }
 
-export interface Dog {
+export interface Doge {
     id: string;
     img: string;
     name: string;

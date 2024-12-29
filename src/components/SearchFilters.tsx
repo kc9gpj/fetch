@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Input from './ui/Input';
-import Button from './ui/Button';
 
 interface SearchFiltersProps {
     breeds: string[];
@@ -20,47 +19,60 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ breeds, onSearch }) => {
         sort: 'breed:asc'
     });
 
-    const [selectedBreed, setSelectedBreed] = useState<string>('');
-
-    const handleAddBreed = () => {
-        if (selectedBreed && !filters.breeds.includes(selectedBreed)) {
-            setFilters(prev => ({
-                ...prev,
-                breeds: [...prev.breeds, selectedBreed]
-            }));
-            setSelectedBreed('');
+    const handleBreedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newBreed = e.target.value;
+        if (newBreed && !filters.breeds.includes(newBreed)) {
+            const newFilters = {
+                ...filters,
+                breeds: [...filters.breeds, newBreed]
+            };
+            setFilters(newFilters);
+            onSearch(newFilters);
         }
     };
 
     const handleRemoveBreed = (breed: string) => {
-        setFilters(prev => ({
-            ...prev,
-            breeds: prev.breeds.filter(b => b !== breed)
-        }));
+        const newFilters = {
+            ...filters,
+            breeds: filters.breeds.filter(b => b !== breed)
+        };
+        setFilters(newFilters);
+        onSearch(newFilters);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSearch(filters);
+    const handleAgeChange = (key: 'ageMin' | 'ageMax', value: string) => {
+        const numValue = value === '' ? undefined : Number(value);
+        const newFilters = {
+            ...filters,
+            [key]: numValue
+        };
+        setFilters(newFilters);
+        onSearch(newFilters);
+    };
+
+    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newFilters = {
+            ...filters,
+            sort: e.target.value
+        };
+        setFilters(newFilters);
+        onSearch(newFilters);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow">
+        <div className="space-y-4 p-4 bg-white rounded-lg shadow-sm">
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Breed</label>
-                <div className="flex gap-2">
-                    <select
-                        value={selectedBreed}
-                        onChange={(e) => setSelectedBreed(e.target.value)}
-                        className="flex-1 rounded-md border border-gray-300 shadow-sm p-2"
-                    >
-                        <option value="">Select breed...</option>
-                        {breeds.map(breed => (
-                            <option key={breed} value={breed}>{breed}</option>
-                        ))}
-                    </select>
-                    <Button type="button" onClick={handleAddBreed}>Add</Button>
-                </div>
+                <select
+                    value=""
+                    onChange={handleBreedChange}
+                    className="w-full rounded-md border border-gray-300 shadow-sm p-2"
+                >
+                    <option value="">Select breed...</option>
+                    {breeds.map(breed => (
+                        <option key={breed} value={breed}>{breed}</option>
+                    ))}
+                </select>
                 <div className="flex flex-wrap gap-2 mt-2">
                     {filters.breeds.map(breed => (
                         <span
@@ -81,31 +93,33 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ breeds, onSearch }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                <Input
-                    type="number"
-                    label="Min Age"
-                    value={filters.ageMin || ''}
-                    onChange={(e) => setFilters(prev => ({
-                        ...prev,
-                        ageMin: e.target.value ? Number(e.target.value) : undefined
-                    }))}
-                />
-                <Input
-                    type="number"
-                    label="Max Age"
-                    value={filters.ageMax || ''}
-                    onChange={(e) => setFilters(prev => ({
-                        ...prev,
-                        ageMax: e.target.value ? Number(e.target.value) : undefined
-                    }))}
-                />
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Min Age</label>
+                    <input
+                        type="number"
+                        min={0}
+                        value={filters.ageMin ?? ''}
+                        onChange={(e) => handleAgeChange('ageMin', e.target.value)}
+                        className="w-full rounded-md border border-gray-300 shadow-sm p-2"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Age</label>
+                    <input
+                        type="number"
+                        min={0}
+                        value={filters.ageMax ?? ''}
+                        onChange={(e) => handleAgeChange('ageMax', e.target.value)}
+                        className="w-full rounded-md border border-gray-300 shadow-sm p-2"
+                    />
+                </div>
             </div>
 
             <div>
                 <label className="block text-sm font-medium text-gray-700">Sort By</label>
                 <select
                     value={filters.sort}
-                    onChange={(e) => setFilters(prev => ({ ...prev, sort: e.target.value }))}
+                    onChange={handleSortChange}
                     className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"
                 >
                     <option value="breed:asc">Breed (A-Z)</option>
@@ -116,9 +130,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ breeds, onSearch }) => {
                     <option value="name:desc">Name (Z-A)</option>
                 </select>
             </div>
-
-            <Button type="submit" className="w-full">Apply Filters</Button>
-        </form>
+        </div>
     );
 };
 

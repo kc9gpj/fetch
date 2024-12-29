@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import SearchPage from './pages/SearchPage';
@@ -8,8 +8,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <Router>
+      <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route
@@ -28,10 +28,10 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

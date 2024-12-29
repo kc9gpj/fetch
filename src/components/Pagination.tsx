@@ -1,6 +1,3 @@
-import React from 'react';
-import Button from './ui/Button';
-
 interface PaginationProps {
     total: number;
     pageSize: number;
@@ -8,6 +5,7 @@ interface PaginationProps {
     hasPrev: boolean;
     onNext: () => void;
     onPrev: () => void;
+    currentPage: number;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
@@ -16,53 +14,42 @@ const Pagination: React.FC<PaginationProps> = ({
     hasNext,
     hasPrev,
     onNext,
-    onPrev
+    onPrev,
+    currentPage
 }) => {
+    const startRange = ((currentPage - 1) * pageSize) + 1;
+    const endRange = Math.min(currentPage * pageSize, total);
+
     return (
-        <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-            <div className="flex justify-between flex-1 sm:hidden">
-                <Button
+        <div className="flex items-center justify-between px-4 py-3 bg-white border rounded-lg">
+            <div className="flex-1 flex justify-between items-center">
+                <button
                     onClick={onPrev}
                     disabled={!hasPrev}
-                    variant="outline"
+                    className={`px-4 py-2 text-sm font-medium rounded-md ${hasPrev
+                        ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
+                        }`}
                 >
                     Previous
-                </Button>
-                <Button
+                </button>
+
+                <span className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{startRange}</span>{' '}
+                    to <span className="font-medium">{endRange}</span>{' '}
+                    of <span className="font-medium">{total}</span> results
+                </span>
+
+                <button
                     onClick={onNext}
                     disabled={!hasNext}
-                    variant="outline"
+                    className={`px-4 py-2 text-sm font-medium rounded-md ${hasNext
+                        ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
+                        }`}
                 >
                     Next
-                </Button>
-            </div>
-            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                    <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">{pageSize}</span> of{' '}
-                        <span className="font-medium">{total}</span> results
-                    </p>
-                </div>
-                <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                        <Button
-                            onClick={onPrev}
-                            disabled={!hasPrev}
-                            variant="outline"
-                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300"
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            onClick={onNext}
-                            disabled={!hasNext}
-                            variant="outline"
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300"
-                        >
-                            Next
-                        </Button>
-                    </nav>
-                </div>
+                </button>
             </div>
         </div>
     );

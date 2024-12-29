@@ -1,98 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '../hooks/useFavorites';
-import DogCard from '../components/DogCard';
+import DogeCard from '../components/DogeCard';
 import Button from '../components/ui/Button';
-import { useAuth } from '../context/AuthContext';
 
 const FavoritesPage: React.FC = () => {
     const navigate = useNavigate();
-    const { logout } = useAuth();
     const {
         favorites,
-        matchedDog,
-        loading,
-        error,
+        matchedDoge,
+        isGeneratingMatch,
         removeFavorite,
-        generateMatch
+        generateMatch,
+        clearMatchedDoge
     } = useFavorites();
+    const [error, setError] = useState<string>('');
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/login');
+    const handleGenerateMatch = async () => {
+        try {
+            setError('');
+            await generateMatch();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to generate match');
+        }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900">Your Favorite Dogs</h1>
-                    <div className="flex gap-4">
-                        <Button
-                            variant="outline"
-                            onClick={() => navigate('/search')}
-                        >
-                            Back to Search
-                        </Button>
-                        <Button onClick={handleLogout}>Logout</Button>
-                    </div>
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+            <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold">Your Favorite Dogs</h1>
+                    <Button onClick={() => navigate('/search')}>Back to Search</Button>
                 </div>
-            </header>
 
-            <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {error && (
-                    <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
-
-                {matchedDog && (
-                    <div className="mb-8 p-6 bg-white rounded-lg shadow">
-                        <h2 className="text-xl font-semibold mb-4">🎉 You've Been Matched!</h2>
+                {matchedDoge && (
+                    <div className="mb-8 bg-blue-50 p-6 rounded-lg">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold">You've Been Matched!</h2>
+                            <Button variant="outline" onClick={clearMatchedDoge}>Close</Button>
+                        </div>
                         <div className="max-w-sm mx-auto">
-                            <DogCard dog={matchedDog} />
+                            <DogeCard doge={matchedDoge} />
                         </div>
                     </div>
                 )}
 
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">
-                        Your Favorites ({favorites.length})
-                    </h2>
-                    <Button
-                        onClick={generateMatch}
-                        disabled={favorites.length === 0 || loading}
-                    >
-                        {loading ? 'Generating Match...' : 'Generate Match'}
-                    </Button>
-                </div>
-
-                {favorites.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-lg shadow">
-                        <p className="text-gray-500">
-                            You haven't added any dogs to your favorites yet.
-                        </p>
-                        <Button
-                            variant="outline"
-                            className="mt-4"
-                            onClick={() => navigate('/search')}
-                        >
-                            Go Find Some Dogs
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {favorites.map(dog => (
-                            <DogCard
-                                key={dog.id}
-                                dog={dog}
-                                isFavorite={true}
-                                onToggleFavorite={() => removeFavorite(dog.id)}
-                            />
-                        ))}
+                {error && (
+                    <div className="mb-4 text-red-500 text-center">
+                        {error}
                     </div>
                 )}
-            </main>
+
+                <div className="mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold">
+                            Your Favorites ({favorites.length})
+                        </h2>
+                        <Button
+                            onClick={handleGenerateMatch}
+                            disabled={favorites.length === 0 || isGeneratingMatch}
+                        >
+                            {isGeneratingMatch ? 'Generating...' : 'Generate Match'}
+                        </Button>
+                    </div>
+
+                    {favorites.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            <p>You haven't added any doges to your favorites yet.</p>
+                            <Button
+                                variant="outline"
+                                className="mt-4"
+                                onClick={() => navigate('/search')}
+                            >
+                                Go Find Some Doges
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {favorites.map(doge => (
+                                <DogeCard
+                                    key={doge.id}
+                                    doge={doge}
+                                    isFavorite={true}
+                                    onToggleFavorite={() => removeFavorite(doge.id)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };

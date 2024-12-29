@@ -1,21 +1,23 @@
-import { useDogSearch } from '../hooks/useDogSearch';
 import { useFavorites } from '../hooks/useFavorites';
 import SearchFilters, { SearchFilters as Filters } from '../components/SearchFilters';
-import DogCard from '../components/DogCard';
+import DogeCard from '../components/DogeCard';
 import Pagination from '../components/Pagination';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Dog } from '@/types';
+import { useEffect, useState } from 'react';
+import { Doge } from '@/types';
+import { Heart } from 'lucide-react';
+import { useDogeSearch } from '@/hooks/useDogeSearch';
 
 const PAGE_SIZE = 25;
 
 const SearchPage: React.FC = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const { dogs, loading, error, total, nextCursor, prevCursor, breeds, searchDogs } = useDogSearch();
+    const { doges, loading, error, total, nextCursor, prevCursor, breeds, searchDoges, handleNext, handlePrev } = useDogeSearch();
     const { favorites, addFavorite, removeFavorite } = useFavorites();
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         handleSearch({
@@ -25,27 +27,24 @@ const SearchPage: React.FC = () => {
     }, []);
 
     const handleSearch = (filters: Filters) => {
-        searchDogs({
+        setCurrentPage(1);
+        searchDoges({
             ...filters,
             size: PAGE_SIZE
         });
     };
 
-    const handleNext = () => {
-        if (nextCursor) {
-            searchDogs({
-                size: PAGE_SIZE,
-                from: Number(new URLSearchParams(nextCursor).get('from'))
-            });
+    const handleNextPage = () => {
+        if (canGoNext) {
+            setCurrentPage(prev => prev + 1);
+            handleNext();
         }
     };
 
-    const handlePrev = () => {
-        if (prevCursor) {
-            searchDogs({
-                size: PAGE_SIZE,
-                from: Number(new URLSearchParams(prevCursor).get('from'))
-            });
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prev => prev - 1);
+            handlePrev();
         }
     };
 
@@ -54,27 +53,30 @@ const SearchPage: React.FC = () => {
         navigate('/login');
     };
 
-    const handleToggleFavorite = (dog: Dog) => {
-        const isFavorite = favorites.some(fav => fav.id === dog.id);
+    const handleToggleFavorite = (doge: Doge) => {
+        const isFavorite = favorites.some(fav => fav.id === doge.id);
         if (isFavorite) {
-            removeFavorite(dog.id);
+            removeFavorite(doge.id);
         } else {
-            addFavorite(dog);
+            addFavorite(doge);
         }
     };
+
+    const canGoNext = !!nextCursor && currentPage * PAGE_SIZE < total;
 
     return (
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900">Find Your Perfect Dog</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Find Your Perfect Doge</h1>
                     <div className="flex gap-4">
                         <Button
                             variant="outline"
                             onClick={() => navigate('/favorites')}
                             className="flex items-center gap-2"
                         >
-                            Favorites ({favorites.length}) ❤️
+                            Favorites ({favorites.length})
+                            <Heart className="h-5 w-5 text-red-500 fill-current" />
                         </Button>
                         <Button onClick={handleLogout}>Logout</Button>
                     </div>
@@ -95,36 +97,40 @@ const SearchPage: React.FC = () => {
                         )}
 
                         {loading ? (
-                            <div className="text-center py-12">Loading...</div>
+                            <div className="text-center py-12">
+                                <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-900 border-t-transparent mx-auto"></div>
+                                <p className="mt-2 text-gray-600">Loading dogs...</p>
+                            </div>
                         ) : (
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {dogs.map(dog => (
-                                        <DogCard
-                                            key={dog.id}
-                                            dog={dog}
-                                            isFavorite={favorites.some(fav => fav.id === dog.id)}
+                                    {doges.map((doge: Doge) => (
+                                        <DogeCard
+                                            key={doge.id}
+                                            doge={doge}
+                                            isFavorite={favorites.some(fav => fav.id === doge.id)}
                                             onToggleFavorite={handleToggleFavorite}
                                         />
                                     ))}
                                 </div>
 
-                                {dogs.length > 0 && (
+                                {doges.length > 0 && (
                                     <div className="mt-6">
                                         <Pagination
                                             total={total}
                                             pageSize={PAGE_SIZE}
-                                            hasNext={!!nextCursor}
-                                            hasPrev={!!prevCursor}
-                                            onNext={handleNext}
-                                            onPrev={handlePrev}
+                                            hasNext={canGoNext}
+                                            hasPrev={!!prevCursor && currentPage > 1}
+                                            onNext={handleNextPage}
+                                            onPrev={handlePrevPage}
+                                            currentPage={currentPage}
                                         />
                                     </div>
                                 )}
 
-                                {dogs.length === 0 && !loading && (
+                                {doges.length === 0 && !loading && (
                                     <div className="text-center py-12 text-gray-500">
-                                        No dogs found matching your criteria
+                                        No doges found matching your criteria
                                     </div>
                                 )}
                             </>

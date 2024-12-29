@@ -1,15 +1,46 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { AuthContextType, User } from '../types';
+import React, { createContext, useState, useContext } from 'react';
+import Cookies from 'js-cookie';
+import { User } from '@/types';
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
-interface AuthProviderProps {
-    children: ReactNode;
+interface AuthContextType {
+    isAuthenticated: boolean;
+    userData: User | null;
+    login: (name: string, email: string) => Promise<boolean>;
+    logout: () => Promise<void>;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [userData, setUserData] = useState<User | null>(null);
+const AUTH_COOKIE_NAME = 'user_session';
+const SESSION_DURATION = 60 * 60 * 1000;
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+        const sessionData = Cookies.get(AUTH_COOKIE_NAME);
+        if (sessionData) {
+            try {
+                const session = JSON.parse(sessionData);
+                const expirationTime = new Date(session.expiresAt).getTime();
+                return Date.now() <= expirationTime;
+            } catch {
+                return false;
+            }
+        }
+        return false;
+    });
+
+    const [userData, setUserData] = useState<User | null>(() => {
+        const sessionData = Cookies.get(AUTH_COOKIE_NAME);
+        if (sessionData) {
+            try {
+                const session = JSON.parse(sessionData);
+                return session.user;
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    });
 
     const login = async (name: string, email: string): Promise<boolean> => {
         try {
@@ -23,6 +54,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             });
 
             if (!response.ok) throw new Error('Login failed');
+
+            const expirationTime = Date.now() + SESSION_DURATION;
+            const sessionData = {
+                user: { name, email },
+                expiresAt: new Date(expirationTime).toISOString()
+            };
+
+            Cookies.set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
+                expires: 1 / 24,
+                sameSite: 'strict'
+            });
 
             setIsAuthenticated(true);
             setUserData({ name, email });
@@ -40,20 +82,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 credentials: 'include'
             });
         } finally {
+            Cookies.remove(AUTH_COOKIE_NAME);
             setIsAuthenticated(false);
             setUserData(null);
+            window.location.href = '/login';
         }
     };
 
-    const value: AuthContextType = {
-        isAuthenticated,
-        userData,
-        login,
-        logout
-    };
-
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider value={{ isAuthenticated, userData, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
@@ -66,5 +103,3 @@ export const useAuth = (): AuthContextType => {
     }
     return context;
 };
-
-export default AuthContext;

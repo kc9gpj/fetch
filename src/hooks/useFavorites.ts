@@ -1,47 +1,75 @@
-import { useState } from 'react';
-import { Dog } from '../types';
+import { useState, useEffect } from 'react';
+import { Doge } from '@/types';
+import { useAuth } from '../context/AuthContext';
+
+const getFavoritesKey = (userEmail: string) => `doge_favorites_${userEmail}`;
+
+interface MatchResponse {
+    match: string;
+}
 
 export const useFavorites = () => {
-    const [favorites, setFavorites] = useState<Dog[]>([]);
-    const [matchedDog, setMatchedDog] = useState<Dog | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { userData } = useAuth();
+    const storageKey = getFavoritesKey(userData?.email || '');
 
-    const addFavorite = (dog: Dog) => {
+    const [favorites, setFavorites] = useState<Doge[]>(() => {
+        if (!userData?.email) return [];
+        const stored = localStorage.getItem(storageKey);
+        return stored ? JSON.parse(stored) : [];
+    });
+
+    const [matchedDoge, setMatchedDoge] = useState<Doge | null>(null);
+    const [isGeneratingMatch, setIsGeneratingMatch] = useState(false);
+
+    useEffect(() => {
+        if (userData?.email) {
+            localStorage.setItem(storageKey, JSON.stringify(favorites));
+        }
+    }, [favorites, userData?.email, storageKey]);
+
+    useEffect(() => {
+        if (!userData?.email) {
+            setFavorites([]);
+        } else {
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+                setFavorites(JSON.parse(stored));
+            }
+        }
+    }, [userData?.email, storageKey]);
+
+    const addFavorite = (doge: Doge) => {
         setFavorites(prev => {
-            if (prev.find(d => d.id === dog.id)) return prev;
-            return [...prev, dog];
+            if (prev.some(d => d.id === doge.id)) return prev;
+            return [...prev, doge];
         });
     };
 
-    const removeFavorite = (dogId: string) => {
-        setFavorites(prev => prev.filter(dog => dog.id !== dogId));
+    const removeFavorite = (dogeId: string) => {
+        setFavorites(prev => prev.filter(doge => doge.id !== dogeId));
     };
 
     const generateMatch = async () => {
         if (favorites.length === 0) {
-            setError('Please add some dogs to your favorites first');
-            return;
+            throw new Error('No favorites selected');
         }
 
-        setLoading(true);
-        setError(null);
-
+        setIsGeneratingMatch(true);
         try {
-            const response = await fetch('https://frontend-take-home-service.fetch.com/dogs/match', {
+            const matchResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs/match', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify(favorites.map(dog => dog.id))
+                body: JSON.stringify(favorites.map(doge => doge.id))
             });
 
-            if (!response.ok) throw new Error('Failed to generate match');
+            if (!matchResponse.ok) throw new Error('Failed to generate match');
 
-            const { match: matchId } = await response.json();
+            const { match: matchId } = await matchResponse.json() as MatchResponse;
 
-            const dogResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
+            const dogeResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,24 +78,28 @@ export const useFavorites = () => {
                 body: JSON.stringify([matchId])
             });
 
-            if (!dogResponse.ok) throw new Error('Failed to fetch matched dog');
+            if (!dogeResponse.ok) throw new Error('Failed to fetch matched doge');
 
-            const [matchedDogData] = await dogResponse.json();
-            setMatchedDog(matchedDogData);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to generate match');
+            const [matchedDogeData] = await dogeResponse.json() as Doge[];
+            setMatchedDoge(matchedDogeData);
+
+            return matchedDogeData;
         } finally {
-            setLoading(false);
+            setIsGeneratingMatch(false);
         }
+    };
+
+    const clearMatchedDoge = () => {
+        setMatchedDoge(null);
     };
 
     return {
         favorites,
-        matchedDog,
-        loading,
-        error,
+        matchedDoge,
+        isGeneratingMatch,
         addFavorite,
         removeFavorite,
-        generateMatch
+        generateMatch,
+        clearMatchedDoge
     };
 };
