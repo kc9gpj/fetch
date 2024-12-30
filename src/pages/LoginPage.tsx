@@ -10,7 +10,7 @@ interface FormData {
     email: string;
 }
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
     const [formData, setFormData] = useState<FormData>({ name: '', email: '' });
     const [error, setError] = useState<string>('');
     const { login } = useAuth();
@@ -52,7 +52,7 @@ const LoginPage: React.FC = () => {
                     <CardHeader className="space-y-2">
                         <CardTitle className="text-2xl font-bold text-center">Fetch Doge Adoption</CardTitle>
                         <CardDescription className="text-center">
-                            Find your perfect furry friend
+                            Find your new doge
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

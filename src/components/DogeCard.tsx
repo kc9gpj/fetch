@@ -1,4 +1,3 @@
-import React from 'react';
 import { Doge } from '../types';
 import { Heart } from 'lucide-react';
 
@@ -8,7 +7,8 @@ interface DogeCardProps {
     onToggleFavorite?: (doge: Doge) => void;
 }
 
-const DogeCard: React.FC<DogeCardProps> = ({ doge, isFavorite = false, onToggleFavorite }) => {
+const DogeCard = ({ doge, isFavorite = false, onToggleFavorite }: DogeCardProps) => {
+
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <img
@@ -35,7 +35,7 @@ const DogeCard: React.FC<DogeCardProps> = ({ doge, isFavorite = false, onToggleF
                 <p className="text-gray-600">{doge.breed}</p>
                 <div className="mt-2 text-sm text-gray-500">
                     <p>Age: {doge.age} {doge.age === 1 ? 'year' : 'years'}</p>
-                    <p>Location: {doge.zip_code}</p>
+                    <p>Zip Code: {doge.zip_code}</p>
                 </div>
             </div>
         </div>

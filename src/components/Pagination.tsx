@@ -8,7 +8,7 @@ interface PaginationProps {
     currentPage: number;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+const Pagination = ({
     total,
     pageSize,
     hasNext,
@@ -16,7 +16,7 @@ const Pagination: React.FC<PaginationProps> = ({
     onNext,
     onPrev,
     currentPage
-}) => {
+}: PaginationProps) => {
     const startRange = ((currentPage - 1) * pageSize) + 1;
     const endRange = Math.min(currentPage * pageSize, total);
 

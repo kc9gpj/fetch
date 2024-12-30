@@ -43,26 +43,34 @@ export const useDogeSearch = () => {
         setLoading(true);
         setError(null);
 
+        const newFilters = {
+            ...params,
+            breeds: params.breeds || [],
+            sort: params.sort || 'breed:asc',
+            size: params.size || PAGE_SIZE
+        };
+        setCurrentFilters(newFilters);
+
         try {
             const queryParams = new URLSearchParams();
 
-            if (params.breeds && params.breeds.length > 0) {
-                params.breeds.forEach(breed => {
+            if (newFilters.breeds?.length > 0) {
+                newFilters.breeds.forEach(breed => {
                     queryParams.append('breeds', breed);
                 });
             }
 
-            if (typeof params.ageMin === 'number') {
-                queryParams.append('ageMin', params.ageMin.toString());
+            if (typeof newFilters.ageMin === 'number') {
+                queryParams.append('ageMin', newFilters.ageMin.toString());
             }
 
-            if (typeof params.ageMax === 'number') {
-                queryParams.append('ageMax', params.ageMax.toString());
+            if (typeof newFilters.ageMax === 'number') {
+                queryParams.append('ageMax', newFilters.ageMax.toString());
             }
 
-            if (params.size) queryParams.append('size', params.size.toString());
-            if (params.sort) queryParams.append('sort', params.sort);
-            if (params.from) queryParams.append('from', params.from.toString());
+            if (newFilters.size) queryParams.append('size', newFilters.size.toString());
+            if (newFilters.sort) queryParams.append('sort', newFilters.sort);
+            if (newFilters.from) queryParams.append('from', newFilters.from.toString());
 
             const searchUrl = `https://frontend-take-home-service.fetch.com/dogs/search?${queryParams}`;
 

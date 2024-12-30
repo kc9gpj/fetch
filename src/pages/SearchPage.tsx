@@ -12,7 +12,7 @@ import { useDogeSearch } from '@/hooks/useDogeSearch';
 
 const PAGE_SIZE = 25;
 
-const SearchPage: React.FC = () => {
+const SearchPage = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const { doges, loading, error, total, nextCursor, prevCursor, breeds, searchDoges, handleNext, handlePrev } = useDogeSearch();

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Input from './ui/Input';
 
 interface SearchFiltersProps {
     breeds: string[];
@@ -13,7 +12,7 @@ export interface SearchFilters {
     sort: string;
 }
 
-const SearchFilters: React.FC<SearchFiltersProps> = ({ breeds, onSearch }) => {
+const SearchFilters = ({ breeds, onSearch }: SearchFiltersProps) => {
     const [filters, setFilters] = useState<SearchFilters>({
         breeds: [],
         sort: 'breed:asc'

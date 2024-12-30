@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '../hooks/useFavorites';
 import DogeCard from '../components/DogeCard';
 import Button from '../components/ui/Button';
 
-const FavoritesPage: React.FC = () => {
+const FavoritesPage = () => {
     const navigate = useNavigate();
     const {
         favorites,

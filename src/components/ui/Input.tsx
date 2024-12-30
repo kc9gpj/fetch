@@ -1,16 +1,16 @@
-import React, { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
 }
 
-const Input: React.FC<InputProps> = ({
+const Input = ({
     label,
     error,
     className = '',
     ...props
-}) => {
+}: InputProps) => {
     return (
         <div className="flex flex-col gap-1">
             {label && (
@@ -20,13 +20,13 @@ const Input: React.FC<InputProps> = ({
             )}
             <input
                 className={`
-          px-3 py-2 
-          border border-gray-300 
-          rounded-md 
+          px-3 py-2
+          border border-gray-300
+          rounded-md
           shadow-sm
-          focus:outline-none 
-          focus:ring-2 
-          focus:ring-blue-500 
+          focus:outline-none
+          focus:ring-2
+          focus:ring-blue-500
           focus:border-blue-500
           ${error ? 'border-red-500' : ''}
           ${className}
