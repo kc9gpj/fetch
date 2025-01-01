@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext } from 'react';
 import Cookies from 'js-cookie';
 import { User } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -15,6 +16,7 @@ const SESSION_DURATION = 60 * 60 * 1000;
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const navigate = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
         const sessionData = Cookies.get(AUTH_COOKIE_NAME);
         if (sessionData) {
@@ -85,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             Cookies.remove(AUTH_COOKIE_NAME);
             setIsAuthenticated(false);
             setUserData(null);
-            window.location.href = '/login';
+            navigate('/login');
         }
     };
 
