@@ -7,7 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
   return (
-    <Router>
+    <Router basename="/fetch">
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
