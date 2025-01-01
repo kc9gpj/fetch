@@ -51,9 +51,10 @@ const LoginPage = () => {
                 <Card>
                     <CardHeader className="space-y-2">
                         <CardTitle className="text-2xl font-bold text-center">Fetch Doge Adoption</CardTitle>
-                        <CardDescription className="text-center">
-                            Find your new doge
-                        </CardDescription>
+                        <div className="flex items-center justify-center gap-2">
+                            <CardDescription>Find your new doge</CardDescription>
+                            <img src="/doge.png" alt="Doge" className="w-10 h-10 object-contain" />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">

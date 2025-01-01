@@ -68,7 +68,12 @@ const SearchPage = () => {
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900">Find Your Perfect Doge</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        <div className="flex items-center gap-2">
+                            Find Your Perfect Doge
+                            <img src="/doge.png" alt="Doge" className="w-10 h-10 object-contain" />
+                        </div>
+                    </h1>
                     <div className="flex gap-4">
                         <Button
                             variant="outline"
